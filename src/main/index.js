@@ -31,7 +31,7 @@ function createWindow() {
       nodeIntegrationInWorker: true,
     },
   });
-  if (process.env.NODE_ENV == "production") mainWindow.setMenu(null);
+  if (process.env.NODE_ENV === "production") mainWindow.setMenu(null);
   mainWindow.loadURL(winURL);
 
   mainWindow.on("closed", () => {

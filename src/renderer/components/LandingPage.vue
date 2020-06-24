@@ -30,8 +30,8 @@
 </template>
 
 <script>
-  import SystemInformation from './LandingPage/SystemInformation'
-
+  import SystemInformation from './LandingPage/SystemInformation';
+  import db from './modules/store/dbController';
   export default {
     name: 'landing-page',
     components: { SystemInformation },
@@ -39,6 +39,9 @@
       open (link) {
         this.$electron.shell.openExternal(link)
       }
+    },
+    mounted: function() {
+      
     }
   }
 </script>
