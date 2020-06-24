@@ -130,6 +130,8 @@ let rendererConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
+      isBrowser: false,
+      isDevelopment: process.env.NODE_ENV !== 'production',
       nodeModules: process.env.NODE_ENV !== 'production'
         ? path.resolve(__dirname, '../node_modules')
         : false
@@ -171,13 +173,11 @@ if (process.env.NODE_ENV === 'production') {
 
   rendererConfig.plugins.push(
     new MinifyPlugin(),
-    new CopyWebpackPlugin([
-      {
-        from: path.join(__dirname, '../static'),
-        to: path.join(__dirname, '../dist/electron/static'),
-        ignore: ['.*']
-      }
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: path.join(__dirname, '../static'), to: path.join(__dirname, '../dist/electron/static') },
+      ],
+    }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"production"'
     }),
