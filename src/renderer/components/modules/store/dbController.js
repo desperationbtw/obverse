@@ -1,13 +1,13 @@
 const db = require("./db");
 
-let prototype = (datastore) => {
+const prototype = (datastore) => {
   return {
     /**
      * @param  {Object} params Параметры согласно абстрактной модели
      * @return {Object}
      */
     async create(params) {
-      const result = await datastore.insert(params);
+      let result = await datastore.insert(params);
       return result;
     },
 
@@ -16,7 +16,7 @@ let prototype = (datastore) => {
      * @return {Object}
      */
     async find(params) {
-      const result = await datastore.find(params);
+      let result = await datastore.find(params);
       return result;
     },
   };

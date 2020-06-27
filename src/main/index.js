@@ -22,6 +22,7 @@ function createWindow() {
   /**
    * Initial window options
    */
+  app.allowRendererProcessReuse = false;
   mainWindow = new BrowserWindow({
     height: 563,
     useContentSize: true,

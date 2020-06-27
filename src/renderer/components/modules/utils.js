@@ -1,5 +1,6 @@
+const db = require("./store/dbController");
 
 
-module.exports = {
-    //! Some utils
-}
+export default {
+  //!
+};
