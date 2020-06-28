@@ -4,6 +4,7 @@ const proxyChain = require("proxy-chain");
 const ProxyVerifier = require("proxy-verifier");
 const userAgentGenerator = require("./userAgent");
 const canvasGenerator = require("./canvas");
+const utils = require("../utils");
 
 stealth.onBrowser = () => {};
 puppeteer.use(stealth);
@@ -29,9 +30,9 @@ async function validProxy(proxy, isLocal = false) {
   return true;
 }
 
-async function startLocalProxyServer(ip, login, password) {
+async function startLocalProxyServer(proxy) {
   const localProxy = await proxyChain.anonymizeProxy(
-    `http://${login}:${password}@${ip}`
+    `http://${proxy.login}:${proxy.password}@${proxy.ip}`
   );
 
   if (!validProxy(localProxy, true)) return null;
@@ -39,13 +40,17 @@ async function startLocalProxyServer(ip, login, password) {
   return localProxy;
 }
 
-async function runBrowserSession(
-  proxy,
-  canvas,
-  timeZone = ["ru", "ru-RU", "Europe/Moscow"],
-  userAgent,
-  headless = false
-) {
+async function runBrowserSession(options) {
+  var defaults = {
+    headless: true,
+    timeZone: ["ru", "ru-RU", "Europe/Moscow"],
+    proxy: null,
+    userAgent: userAgentGenerator.randomUserAgent(),
+    canvas: canvasGenerator.generateCanvas()
+  };
+
+  utils.setDefaults(options, defaults);
+
   const args = [
     "--no-sandbox",
     "--lang=en-GB",
@@ -56,43 +61,41 @@ async function runBrowserSession(
     "--ignore-certifcate-errors-spki-list",
   ];
 
-  if (!userAgent) userAgent = userAgentGenerator.randomUserAgent();
-  if (!canvas) {
-    canvas = canvasGenerator.generateCanvas();
-  }
-  if (proxy) {
-    if (proxy.isLocal) {
-      var check = await startLocalProxyServer(proxy.ip, proxy.login, proxy.password);
+  if (options.proxy) {
+    if (options.proxy.password && options.proxy.login) {
+      var check = await startLocalProxyServer(
+        options.proxy
+      );
       if (check) args.push(`--proxy-server=${check}`);
     } else {
-      if (validProxy(proxy.ip)) args.push(`--proxy-server=${proxy.ip}`);
+      if (validProxy(options.proxy.ip)) args.push(`--proxy-server=${options.proxy.ip}`);
     }
   }
 
-  const options = {
+  const _options = {
     args,
-    headless: headless,
+    headless: options.headless,
     ignoreHTTPSErrors: true,
     defaultViewport: null,
-    //userDataDir: "./tmp", //!Для сейва сессий в будущем
+    //userDataDir: "./tmp", //?Для сейва сессий в будущем
   };
 
-  var browser = await puppeteer.launch(options);
+  var browser = await puppeteer.launch(_options);
 
   const originalFunction = browser.newPage;
   browser.newPage = async function() {
     var page = await originalFunction.apply(this, arguments);
-    await page.emulateTimezone(timeZone[2]);
-    await page.setUserAgent(userAgent);
+    await page.emulateTimezone(options.timeZone[2]);
+    await page.setUserAgent(options.userAgent);
     await page.setExtraHTTPHeaders({
-      "Accept-Language": timeZone[0],
+      "Accept-Language": options.timeZone[0],
     });
 
     await page.evaluateOnNewDocument(() => {
       const originalFunction = HTMLCanvasElement.prototype.toDataURL;
       HTMLCanvasElement.prototype.toDataURL = function(type) {
         if (type === "image/png" && this.width === 220 && this.height === 30) {
-          return canvas;
+          return options.canvas;
         }
         return originalFunction.apply(this, arguments);
       };

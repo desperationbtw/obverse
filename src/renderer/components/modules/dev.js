@@ -1,4 +1,5 @@
 const fbp = require("./fingerprint/fpByPass");
+const userAgentGenerator = require("./fingerprint/userAgent");
 
 const url = [
   "https://fingerprintjs.com/demo",
@@ -10,12 +11,11 @@ var browser;
 
 
 async function Run() {
-  var proxy = {};
-  proxy.isLocal = true;
-  proxy.ip = '91.241.180.150:6147';
-  proxy.login = 'BesheniyMax';
-  proxy.password = 'p2u039';
-  browser = await fbp.runBrowserSession(proxy);
+  browser = await fbp.runBrowserSession({
+    proxy: {ip: "91.241.180.150:6147", login: "BesheniyMax", password: "p2u039"},
+    userAgent: "Mozilla/5.0 (Windows NT 6.3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 YaBrowser/17.6.1.749 Yowser/2.5 Safari/537.36",
+    headless: false
+  });
   const pages = [
     await browser.newPage(),
     await browser.newPage(),

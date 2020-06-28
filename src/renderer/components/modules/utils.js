@@ -1,6 +1,9 @@
-const db = require("./store/dbController");
+const _ = require('underscore');
 
+function setDefaults(options, defaults){
+  return _.defaults(options, defaults);
+}
 
-export default {
-  //!
+export {
+  setDefaults
 };
