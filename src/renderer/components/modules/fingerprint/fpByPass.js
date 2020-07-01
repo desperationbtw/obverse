@@ -1,34 +1,13 @@
 const puppeteer = require("puppeteer-extra");
 const stealth = require("puppeteer-extra-plugin-stealth")();
-const proxyChain = require("proxy-chain");
-const { ProxyChecker } = require("proxy-checker");
+const proxyServer = require('../proxy/proxyServer');
+const { proxyChecker } = require('../proxy/proxyChecker');
 const { UAGenerator } = require("./userAgent");
 const canvasGenerator = require("./canvas");
 const utils = require("../utils");
 
 stealth.onBrowser = () => {};
 puppeteer.use(stealth);
-
-async function validProxy(proxy, isLocal = false) {
-  var a = document.createElement("a");
-  a.href = proxy;
-
-  let pc = new ProxyChecker(a.hostname, a.port);
-  var result = await pc.check();
-  return result.connect;
-}
-
-async function startLocalProxyServer(proxy) {
-  const localProxy = await proxyChain.anonymizeProxy(
-    `http://${proxy.login}:${proxy.password}@${proxy.ip}`
-  );
-
-  if (!(await validProxy(localProxy, true))) {
-    console.log("ValidProxy Error: bad proxy");
-    return null;
-  }
-  return localProxy;
-}
 
 async function runBrowserSession(options) {
   var defaults = {
@@ -53,10 +32,10 @@ async function runBrowserSession(options) {
 
   if (options.proxy) {
     if (options.proxy.password && options.proxy.login) {
-      var check = await startLocalProxyServer(options.proxy);
+      var check = await proxyServer.createLocalProxyServer(options.proxy);
       if (check) args.push(`--proxy-server=${check}`);
     } else {
-      if (await validProxy(options.proxy.ip))
+      if (await proxyChecker(options.proxy.ip))
         args.push(`--proxy-server=${options.proxy.ip}`);
     }
   }
