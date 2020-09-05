@@ -1,5 +1,6 @@
 <template>
   <div id="wrapper">
+    <browser-window :url="'http://f.vision/'" />
     <button class="alt" @click="devButton('open')">Open browser</button>
     <button class="alt" @click="devButton('close')">Close browser</button>
   </div>
@@ -27,10 +28,13 @@ export default {
       }
     }
   },
-  mounted: function() {}
+  mounted: function() {
+    onload = () => {
+      //dev.Run();
+    };
+  }
 };
 </script>
 
 <style>
-
 </style>

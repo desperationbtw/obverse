@@ -1,35 +1,49 @@
-function generateCanvas(width = 220, height = 30) {
-  var canvas = document.createElement('canvas')
-  canvas.width = width;
-  canvas.height = height;
-  var ctx = canvas.getContext("2d");
+import { setDefaults } from "../utils";
 
-  function randNumb(max) {
-    return Math.floor(Math.random() * max);
+export class CanvasGenerator {
+  constructor() {
+    this.options = {
+      width: 220,
+      height: 30,
+    };
   }
 
-  function drawRect() {
-    let x = randNumb(width);
-    let y = randNumb(height);
-    let wid = randNumb(width - x);
-    let hei = randNumb(height - y);
-    ctx.fillRect(x, y, wid, hei);
+  Alone() {
+    let options = this.options;
+    var canvas = document.createElement("canvas");
+    canvas.width = this.options.width;
+    canvas.height = this.options.height;
+    var ctx = canvas.getContext("2d");
+
+    function randNumb(max) {
+      return Math.floor(Math.random() * max);
+    }
+
+    function drawRect() {
+      let x = randNumb(options.width);
+      let y = randNumb(options.height);
+      let wid = randNumb(options.width - x);
+      let hei = randNumb(options.height - y);
+      ctx.fillRect(x, y, wid, hei);
+    }
+
+    function clearRect() {
+      let x = randNumb(options.width);
+      let y = randNumb(options.height);
+      let wid = randNumb(options.width - x);
+      let hei = randNumb(options.height - y);
+      ctx.clearRect(x, y, wid, hei);
+    }
+
+    for (let i = 0; i < randNumb(10); i++) drawRect();
+    for (let i = 0; i < randNumb(10); i++) clearRect();
+
+    return canvas.toDataURL();
   }
 
-  function clearRect() {
-    let x = randNumb(width);
-    let y = randNumb(height);
-    let wid = randNumb(width - x);
-    let hei = randNumb(height - y);
-    ctx.clearRect(x, y, wid, hei);
+  Array(count) {
+    let result = [];
+    for (let i = 0; i < count; i++) result.push(this.Alone());
+    return result;
   }
-
-  for (let i = 0; i < randNumb(10); i++) drawRect();
-  for (let i = 0; i < randNumb(10); i++) clearRect();
-
-  return canvas.toDataURL();
-}
-
-export {
-    generateCanvas
 }

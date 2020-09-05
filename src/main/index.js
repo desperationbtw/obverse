@@ -30,6 +30,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
+      webviewTag: true
     },
   });
   if (process.env.NODE_ENV === "production") mainWindow.setMenu(null);

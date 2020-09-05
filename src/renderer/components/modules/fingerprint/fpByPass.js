@@ -1,11 +1,11 @@
 const puppeteer = require("puppeteer-extra");
-const stealth = require("puppeteer-extra-plugin-stealth")();
+//const stealth = require("puppeteer-extra-plugin-stealth")();
 const path = require("path");
 const rimraf = require("rimraf");
 const proxyServer = require("../proxy/proxyServer");
 const { proxyChecker } = require("../proxy/proxyChecker");
 const { UAGenerator } = require("./userAgent");
-const canvasGenerator = require("./canvas");
+const { CanvasGenerator } = require("./canvas");
 const utils = require("../utils");
 
 // stealth.onBrowser = () => {};
@@ -15,11 +15,13 @@ async function runBrowserSession(options) {
   var defaults = {
     headless: true,
     timeZone: ["ru", "ru-RU", "Europe/Moscow"],
-    proxy: null,
-    userAgent: new UAGenerator().Alone(),
-    canvas: canvasGenerator.generateCanvas(),
+    userAgent: new UAGenerator({
+      deviceCategory: "desktop",
+      platform: "Win32",
+    }).Alone(),
+    canvas: new CanvasGenerator().Alone(),
     sessionPath: "guest",
-    doNotTrack: true,
+    doNotTrack: false,
   };
 
   utils.setDefaults(options, defaults);
@@ -100,17 +102,18 @@ async function runBrowserSession(options) {
       Object.defineProperty(navigator, "language", {
         configurable: false,
         enumerable: true,
-        get: function() {return options.timeZone[1]},
+        get: function() {
+          return options.timeZone[1];
+        },
       });
-      navigator.languages = [options.timeZone[1], options.timeZone[0]];
-      console.log(navigator.languages);
       Object.defineProperty(navigator, "languages", {
         configurable: false,
         enumerable: true,
-        get: function() {return [options.timeZone[1], options.timeZone[0]]},
+        get: function() {
+          return [options.timeZone[1], options.timeZone[0]];
+        },
       });
     }, options);
-    console.log(navigator.languages);
     return page;
   };
 
